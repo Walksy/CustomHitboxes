@@ -53,7 +53,7 @@ public class HitboxRenderManager {
         if (HitboxManager.isFilled(entity))
         {
             //draw must also be called, since the filled box method doesn't fully enclose the hitbox and leaves gaps
-            this.draw(matrices, entity, vertexConsumers, c, c, lineThickness, tickDelta);
+            this.draw(matrices, entity, vertexConsumers, c, cG, lineThickness, tickDelta);
             this.drawFilledBox(matrices, entity, filledC);
         } else {
             this.draw(matrices, entity, vertexConsumers, c, cG, lineThickness, tickDelta);
