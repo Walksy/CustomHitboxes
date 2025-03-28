@@ -4,6 +4,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
@@ -21,13 +22,14 @@ import static walksy.customhitboxes.CustomHitboxesMod.mc;
 @Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRenderDispatcherMixin {
 
-    @Shadow public abstract <T extends Entity> EntityRenderer<? super T> getRenderer(T entity);
+
+    @Shadow public abstract <T extends Entity> EntityRenderer<? super T, ?> getRenderer(T entity);
 
     //Must render at head before matrix manipulation instead of at:
     //Lnet/minecraft/client/render/entity/EntityRenderDispatcher;renderHitbox(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/entity/Entity;FFFF)V
     //Therefore we make our own checks
-    @Inject(method = "render", at = @At(value = "HEAD"))
-    private <E extends Entity> void renderHitboxes(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
+    @Inject(method = "render(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/render/entity/EntityRenderer;)V", at = @At(value = "HEAD"))
+    private <E extends Entity, S extends EntityRenderState> void renderHitboxes(E entity, double x, double y, double z, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, EntityRenderer<? super E, S> renderer, CallbackInfo ci)
     {
         if (!ConfigIntegration.CONFIG.instance().modEnabled || !mc.getEntityRenderDispatcher().shouldRenderHitboxes() || entity.isInvisible()) return;
         EntityRenderer entityRenderer = this.getRenderer(entity); //Used to get the position offset of the entity

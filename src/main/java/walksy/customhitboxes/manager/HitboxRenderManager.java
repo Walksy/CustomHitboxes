@@ -1,8 +1,10 @@
 package walksy.customhitboxes.manager;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -21,7 +23,7 @@ public class HitboxRenderManager {
 
     public static HitboxRenderManager INSTANCE = new HitboxRenderManager();
 
-    public void renderHitbox(Entity entity, EntityRenderer<Entity> entityRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d original, float tickDelta)
+    public void renderHitbox(Entity entity, EntityRenderer entityRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d original, float tickDelta)
     {
         if (!HitboxManager.shouldRender(entity)) return;
         Color c = HitboxManager.getColor(entity);
@@ -30,7 +32,7 @@ public class HitboxRenderManager {
 
         double lineThickness = HitboxManager.getLineThickness(entity);
 
-        Vec3d vec3d = entityRenderer.getPositionOffset(entity, tickDelta);
+        Vec3d vec3d = entity.getPos();
         double d, e, f;
         if (this.shouldRenderServerSide(entity)) {
             double sX = ((LivingEntityAccessor) entity).getServerX();
@@ -53,7 +55,7 @@ public class HitboxRenderManager {
         if (HitboxManager.isFilled(entity))
         {
             //draw must also be called, since the filled box method doesn't fully enclose the hitbox and leaves gaps
-            this.draw(matrices, entity, vertexConsumers, c, c, lineThickness, tickDelta);
+            this.draw(matrices, entity, vertexConsumers, c, cG, lineThickness, tickDelta);
             this.drawFilledBox(matrices, entity, filledC);
         } else {
             this.draw(matrices, entity, vertexConsumers, c, cG, lineThickness, tickDelta);
@@ -88,8 +90,7 @@ public class HitboxRenderManager {
         matrices.translate(mc.getCameraEntity().getX(), mc.getCameraEntity().getY(), mc.getCameraEntity().getZ());
 
         Tessellator tessellator = Tessellator.getInstance();
-
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         RenderSystem.enableCull();
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
@@ -99,8 +100,8 @@ public class HitboxRenderManager {
         RenderSystem.depthMask(true);
 
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
-        RenderSystem.applyModelViewMatrix();
-        RenderSystem.setShader(GameRenderer::getRenderTypeLinesProgram);
+        //RenderSystem.applyModelViewMatrix();
+        RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_LINES);
         RenderSystem.lineWidth((float) (2.5F * lineWidth));
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES);
         buffer.vertex(matrix4f, f, g, h).color(red, green, blue, alpha).normal(matrices.peek(), 1.0F, 0.0F, 0.0F);
@@ -174,7 +175,7 @@ public class HitboxRenderManager {
 
         Tessellator tessellator = Tessellator.getInstance();
 
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         RenderSystem.enableCull();
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
@@ -184,8 +185,8 @@ public class HitboxRenderManager {
         RenderSystem.depthMask(true);
 
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
-        RenderSystem.applyModelViewMatrix();
-        RenderSystem.setShader(GameRenderer::getRenderTypeLinesProgram);
+        //RenderSystem.applyModelViewMatrix();
+        RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_LINES);
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
         buffer.vertex(matrix4f, i, j, k).color(red, green, blue, alpha);
