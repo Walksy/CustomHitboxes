@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "walksy.customhitboxes.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"client": [
+		"EntityRenderDispatcherMixin",
+		"LivingEntityAccessor",
+		"WorldRendererMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
